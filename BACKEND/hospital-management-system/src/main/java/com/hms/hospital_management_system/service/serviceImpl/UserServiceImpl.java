@@ -77,19 +77,40 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.getOtp().equals(otp)) {
+        if (user.getOtp() == null) {
+            throw new RuntimeException("No OTP found for this user");
+        }
+
+        if (!user.getOtp().trim().equals(otp.trim())) {
             throw new RuntimeException("Invalid OTP");
         }
 
         user.setEnabled(true);
+        user.setOtp(null);
         userRepository.save(user);
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         final String token = jwtUtil.generateToken(userDetails);
-
         UserResponse response = userHandlerService.convertToUserResponse(user);
         response.setToken(token);
+
         return response;
+    }
+
+    @Override
+    public void resendOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isEnabled()) {
+            throw new RuntimeException("User is already enabled");
+        }
+
+        String otp = generateOtp();
+        user.setOtp(otp);
+        userRepository.save(user);
+
+        sendOtpEmail(user.getEmail(), otp);
     }
 
     @Override

@@ -11,6 +11,7 @@ public interface UserService {
     UserResponse registerUser(UserRequest request);
     UserResponse loginUser(UserRequest request);
     UserResponse verifyOtp(String email, String otp);
+    void resendOtp(String email);
     UserResponse updateUser(Long id, UserRequest request);
     void deleteUser(Long id);
     Optional<UserResponse> getUserById(Long id);

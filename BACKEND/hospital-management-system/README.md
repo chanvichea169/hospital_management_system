@@ -110,7 +110,23 @@ This is the backend API for a Hospital Management System, built with Java and Sp
     "Invalid OTP"
     ```
 
-#### 3. Login User
+#### 3. Resend OTP
+
+*   **Method:** `POST`
+*   **URL:** `/api/users/resend-otp`
+*   **Description:** Resends the OTP to the user's email address.
+*   **Request Params:**
+    *   `email`: The user's email address.
+*   **Success Response (200 OK):**
+    ```
+    "OTP resent successfully"
+    ```
+*   **Error Response (400 Bad Request):**
+    ```
+    "User not found"
+    ```
+
+#### 4. Login User
 
 *   **Method:** `POST`
 *   **URL:** `/api/users/login`
@@ -141,7 +157,7 @@ This is the backend API for a Hospital Management System, built with Java and Sp
 
 *All user management endpoints require a valid JWT in the `Authorization` header as a Bearer token.*
 
-#### 4. Get All Users
+#### 5. Get All Users
 
 *   **Method:** `GET`
 *   **URL:** `/api/users`
@@ -159,7 +175,7 @@ This is the backend API for a Hospital Management System, built with Java and Sp
     ]
     ```
 
-#### 5. Get User by ID
+#### 6. Get User by ID
 
 *   **Method:** `GET`
 *   **URL:** `/api/users/{id}`
@@ -176,7 +192,7 @@ This is the backend API for a Hospital Management System, built with Java and Sp
     ```
 *   **Error Response (404 Not Found):** If the user with the given ID is not found.
 
-#### 6. Update User
+#### 7. Update User
 
 *   **Method:** `PUT`
 *   **URL:** `/api/users/{id}`
@@ -202,7 +218,7 @@ This is the backend API for a Hospital Management System, built with Java and Sp
     ```
 *   **Error Response (404 Not Found):** If the user with the given ID is not found.
 
-#### 7. Delete User
+#### 8. Delete User
 
 *   **Method:** `DELETE`
 *   **URL:** `/api/users/{id}`

@@ -49,14 +49,6 @@ const ProfileMenu = () => {
 
         <Menu.Divider />
 
-        <Menu.Label>Danger zone</Menu.Label>
-        <Menu.Item leftSection={<IconArrowsLeftRight size={16} />}>
-          Transfer my data
-        </Menu.Item>
-        <Menu.Item color="red" leftSection={<IconTrash size={16} />}>
-          Delete my account
-        </Menu.Item>
-
         <Menu.Divider />
 
         {/* Proper Logout */}
@@ -64,7 +56,7 @@ const ProfileMenu = () => {
           color="red"
           leftSection={<IconLogout size={16} />}
           onClick={handleLogout}
-          className="font-semibold shadow-md"
+          className="font-semibold"
         >
           Logout
         </Menu.Item>

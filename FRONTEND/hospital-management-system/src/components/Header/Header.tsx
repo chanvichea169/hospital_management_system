@@ -52,7 +52,7 @@ const Header = () => {
           <IconBellRinging size={26} stroke={1.5} />
         </ActionIcon>
 
-        {/* Login button */}
+        {/* Login button
         <Button
           component={Link}
           to="/login"
@@ -63,7 +63,7 @@ const Header = () => {
           className="font-semibold shadow-md"
         >
           Login
-        </Button>
+        </Button> */}
 
         {/* Profile Menu */}
         <ProfileMenu />

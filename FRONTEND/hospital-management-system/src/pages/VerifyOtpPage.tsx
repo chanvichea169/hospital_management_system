@@ -20,12 +20,20 @@ function VerifyOtpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [alert, setAlert] = useState<AlertState>({ message: "", type: null });
+  const [timer, setTimer] = useState(60);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const emailParam = params.get("email");
     if (emailParam) setEmail(decodeURIComponent(emailParam));
   }, []);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const countdown = setInterval(() => setTimer((t) => t - 1), 1000);
+      return () => clearInterval(countdown);
+    }
+  }, [timer]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,14 +46,22 @@ function VerifyOtpPage() {
     setAlert({ message: "", type: null });
 
     try {
+      // JSON payload for verify OTP
+      const payload = {
+        email,
+        otp: parseInt(otp),
+      };
+
       const response = await api.post(
         process.env.REACT_APP_VERIFY_OTP_ENDPOINT || "/users/verify-otp",
-        { email, otp }
+        payload
       );
 
-      if (response.data.email) {
+      if (response.status === 200) {
         setAlert({ message: "OTP verified successfully!", type: "success" });
-        navigate("/login"); // navigate to login page after success
+        setTimeout(() => {
+          navigate("/dashboard"); // Redirect to dashboard after success
+        }, 1000);
       } else {
         setAlert({ message: "Invalid OTP. Please try again.", type: "error" });
       }
@@ -73,6 +89,7 @@ function VerifyOtpPage() {
         message: "OTP resent successfully. Check your email.",
         type: "success",
       });
+      setTimer(60);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Failed to resend OTP.";
@@ -175,13 +192,27 @@ function VerifyOtpPage() {
           <p className="text-white/70 text-sm mb-2">Didn't receive the code?</p>
           <button
             onClick={handleResendOtp}
-            disabled={isResending}
+            disabled={isResending || timer > 0}
             className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
-            {isResending ? "Resending..." : "Resend Code"}
+            {timer > 0
+              ? `Resend in ${timer}s`
+              : isResending
+              ? "Resending..."
+              : "Resend Code"}
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

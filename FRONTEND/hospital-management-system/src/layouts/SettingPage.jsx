@@ -26,286 +26,171 @@ function SettingPage() {
     {
       id: "general",
       icon: IconSettings,
-      title: "General Settings",
-      description: "Manage hospital information and preferences",
-      color: "from-blue-500 to-cyan-500",
+      title: "General",
     },
     {
       id: "users",
       icon: IconUsers,
-      title: "User Management",
-      description: "Create and manage user accounts",
-      color: "from-purple-500 to-pink-500",
+      title: "Users",
     },
     {
       id: "security",
       icon: IconShieldLock,
-      title: "Security & Privacy",
-      description: "Configure security settings and permissions",
-      color: "from-green-500 to-emerald-500",
+      title: "Security",
     },
     {
       id: "notifications",
       icon: IconBell,
       title: "Notifications",
-      description: "Manage notification preferences",
-      color: "from-orange-500 to-red-500",
     },
     {
       id: "appointments",
       icon: IconCalendar,
-      title: "Appointment Settings",
-      description: "Configure scheduling and booking options",
-      color: "from-indigo-500 to-blue-500",
+      title: "Appointments",
     },
     {
       id: "reports",
       icon: IconFileText,
-      title: "Reports & Analytics",
-      description: "View and export system reports",
-      color: "from-teal-500 to-cyan-500",
+      title: "Reports",
     },
   ];
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "general":
+        return <GeneralSettings />;
+      case "users":
+        return <UserManagement />;
+      case "security":
+        return <SecuritySettings />;
+      default:
+        return <GeneralSettings />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl">
-              <IconBuildingHospital className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                Hospital Management Settings
-              </h1>
-              <p className="text-slate-600">
-                Preah Ang Duong Hospital System Configuration
-              </p>
-            </div>
-          </div>
+    <div className="flex h-screen bg-slate-50">
+      {/* Sidebar */}
+      <aside className="w-64 flex flex-col bg-white shadow-lg">
+        <div className="p-6 flex items-center gap-3">
+          <IconBuildingHospital className="h-8 w-8 text-cyan-500" />
+          <h1 className="text-xl font-bold text-slate-800">Settings</h1>
         </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            onClick={() => navigate("/create-user")}
-            className="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-cyan-500"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl">
-                <IconUserPlus className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-slate-800 text-lg">
-                  Create New User
-                </h3>
-                <p className="text-sm text-slate-600">
-                  Add doctors, nurses, or staff
-                </p>
-              </div>
-              <IconChevronRight className="ml-auto h-5 w-5 text-slate-400 group-hover:text-cyan-500 transition-colors" />
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("users")}
-            className="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-purple-500"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-                <IconUsers className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-slate-800 text-lg">
-                  Manage Users
-                </h3>
-                <p className="text-sm text-slate-600">
-                  View and edit user accounts
-                </p>
-              </div>
-              <IconChevronRight className="ml-auto h-5 w-5 text-slate-400 group-hover:text-purple-500 transition-colors" />
-            </div>
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-red-500"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl">
-                <IconLogout className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-slate-800 text-lg">
-                  Sign Out
-                </h3>
-                <p className="text-sm text-slate-600">
-                  Log out from your account
-                </p>
-              </div>
-              <IconChevronRight className="ml-auto h-5 w-5 text-slate-400 group-hover:text-red-500 transition-colors" />
-            </div>
-          </button>
-        </div>
-
-        {/* Settings Sections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <nav className="flex-1 px-4 space-y-2">
           {settingsSections.map((section) => {
             const Icon = section.icon;
             return (
               <button
                 key={section.id}
                 onClick={() => setActiveTab(section.id)}
-                className={`group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   activeTab === section.id
-                    ? "ring-2 ring-cyan-500 scale-105"
-                    : "hover:scale-105"
+                    ? "bg-cyan-500 text-white shadow-md"
+                    : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${section.color} opacity-0 group-hover:opacity-5 transition-opacity`}
-                ></div>
-                <div className="relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div
-                      className={`p-3 bg-gradient-to-r ${section.color} rounded-xl shadow-lg`}
-                    >
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <IconChevronRight
-                      className={`h-5 w-5 text-slate-400 group-hover:text-cyan-500 transition-colors ${
-                        activeTab === section.id ? "text-cyan-500" : ""
-                      }`}
-                    />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-2">
-                    {section.title}
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    {section.description}
-                  </p>
-                </div>
-                {activeTab === section.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
-                )}
+                <Icon className="h-5 w-5" />
+                <span className="font-medium">{section.title}</span>
               </button>
             );
           })}
+        </nav>
+        <div className="p-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-all duration-200"
+          >
+            <IconLogout className="h-5 w-5" />
+            <span className="font-medium">Logout</span>
+          </button>
         </div>
+      </aside>
 
-        {/* Active Section Content */}
-        <div className="mt-8 bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">
-            {settingsSections.find((s) => s.id === activeTab)?.title}
-          </h2>
-          <p className="text-slate-600 mb-6">
-            {settingsSections.find((s) => s.id === activeTab)?.description}
-          </p>
-
-          {activeTab === "users" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                <div>
-                  <h4 className="font-semibold text-slate-800">Total Users</h4>
-                  <p className="text-sm text-slate-600">
-                    Active users in the system
-                  </p>
-                </div>
-                <span className="text-2xl font-bold text-cyan-500">-</span>
-              </div>
-              <button
-                onClick={() => navigate("/create-user")}
-                className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-xl font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-              >
-                Create New User Account
-              </button>
-            </div>
-          )}
-
-          {activeTab === "general" && (
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-semibold text-slate-800 mb-2">
-                  Hospital Information
-                </h4>
-                <div className="space-y-2 text-sm text-slate-600">
-                  <p>
-                    <strong>Name:</strong> Preah Ang Duong Hospital
-                  </p>
-                  <p>
-                    <strong>System:</strong> Hospital Management System v1.0
-                  </p>
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    <span className="text-green-500 font-semibold">Active</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "security" && (
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-semibold text-slate-800 mb-2">
-                  Security Options
-                </h4>
-                <p className="text-sm text-slate-600">
-                  Configure password policies, two-factor authentication, and
-                  access controls.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "notifications" && (
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-semibold text-slate-800 mb-2">
-                  Notification Preferences
-                </h4>
-                <p className="text-sm text-slate-600">
-                  Manage email notifications, SMS alerts, and in-app
-                  notifications.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "appointments" && (
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-semibold text-slate-800 mb-2">
-                  Appointment Configuration
-                </h4>
-                <p className="text-sm text-slate-600">
-                  Set booking rules, working hours, and appointment duration.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "reports" && (
-            <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <h4 className="font-semibold text-slate-800 mb-2">
-                  System Reports
-                </h4>
-                <p className="text-sm text-slate-600">
-                  Generate and export various system reports and analytics.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 p-8 overflow-y-auto">
+        {renderContent()}
+      </main>
     </div>
   );
 }
+
+const GeneralSettings = () => (
+  <div>
+    <h2 className="text-3xl font-bold text-slate-800 mb-2">General Settings</h2>
+    <p className="text-slate-600 mb-8">Manage hospital information and preferences.</p>
+    <div className="bg-white p-8 rounded-2xl shadow-lg">
+      <h3 className="text-xl font-bold text-slate-700 mb-4">Hospital Information</h3>
+      <div className="space-y-3 text-slate-600">
+        <p><strong>Name:</strong> Preah Ang Duong Hospital</p>
+        <p><strong>System:</strong> Hospital Management System v1.0</p>
+        <p><strong>Status:</strong> <span className="text-green-500 font-semibold">Active</span></p>
+      </div>
+    </div>
+  </div>
+);
+
+const UserManagement = () => (
+  <div>
+    <h2 className="text-3xl font-bold text-slate-800 mb-2">User Management</h2>
+    <p className="text-slate-600 mb-8">Create and manage user accounts.</p>
+    <div className="bg-white p-8 rounded-2xl shadow-lg">
+      <h3 className="text-xl font-bold text-slate-700 mb-6">Create New User</h3>
+      <form className="space-y-4 max-w-lg mx-auto">
+        <InputField label="Full Name" type="text" placeholder="Enter full name" />
+        <InputField label="Email Address" type="email" placeholder="Enter email address" />
+        <InputField label="Password" type="password" placeholder="Enter password" />
+        <div>
+          <label className="block text-sm font-medium text-slate-600 mb-1">Role</label>
+          <select className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+            <option>Admin</option>
+            <option>Doctor</option>
+            <option>Nurse</option>
+            <option>Receptionist</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-xl font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+        >
+          <IconUserPlus className="inline-block h-5 w-5 mr-2" />
+          Create User
+        </button>
+      </form>
+    </div>
+  </div>
+);
+
+const SecuritySettings = () => (
+  <div>
+    <h2 className="text-3xl font-bold text-slate-800 mb-2">Security & Privacy</h2>
+    <p className="text-slate-600 mb-8">Configure security settings and permissions.</p>
+    <div className="bg-white p-8 rounded-2xl shadow-lg">
+      <h3 className="text-xl font-bold text-slate-700 mb-6">Update Password</h3>
+      <form className="space-y-4 max-w-lg mx-auto">
+        <InputField label="Current Password" type="password" placeholder="Enter your current password" />
+        <InputField label="New Password" type="password" placeholder="Enter a new password" />
+        <InputField label="Confirm New Password" type="password" placeholder="Confirm your new password" />
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+        >
+          <IconShieldLock className="inline-block h-5 w-5 mr-2" />
+          Update Password
+        </button>
+      </form>
+    </div>
+  </div>
+);
+
+const InputField = ({ label, type, placeholder }) => (
+  <div>
+    <label className="block text-sm font-medium text-slate-600 mb-1">{label}</label>
+    <input 
+      type={type} 
+      placeholder={placeholder} 
+      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+    />
+  </div>
+);
 
 export default SettingPage;

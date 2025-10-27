@@ -1,227 +1,160 @@
-# Hospital Management System API
+# Hospital Management System Backend
 
-This is the backend API for a Hospital Management System, built with Java and Spring Boot. It provides user authentication and management features, including registration with OTP verification and JWT-based authentication.
+This project is the backend for a Hospital Management System, built with Spring Boot.
 
-## Prerequisites
+## Recent Changes: User Role Management & Flexible Login
 
-*   Java 21
-*   Maven
-*   PostgreSQL
+This update introduces a more robust way to handle user roles and enhances the login functionality to allow authentication using either username or email.
 
-## Installation & Running
+### User Role Management Changes:
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd hospital-management-system
-    ```
+-   **`RoleName` Enumeration:** A new `RoleName` enum (`ADMIN`, `USER`) has been introduced in `com.hms.hospital_management_system.enumeration.RoleName` for type-safe role definitions.
+-   **`Role` Entity:** The `Role` entity (`com.hms.hospital_management_system.model.Role`) now uses the `RoleName` enum for its `name` field and is mapped to the `roles` table.
+-   **`data.sql`:** The `src/main/resources/data.sql` file now automatically inserts `ADMIN` and `USER` roles into the `roles` table on application startup.
+-   **`UserRequest` DTO:** The `UserRequest` DTO (`com.hms.hospital_management_system.dto.UserRequest`) now accepts a `roleId` (Long) instead of a `role` (String) when creating or updating a user.
+-   **`UserServiceImpl`:** The `registerUser` and `updateUser` methods in `com.hms.hospital_management_system.service.serviceImpl.UserServiceImpl` have been updated to use the `roleId` from `UserRequest` to fetch and assign the corresponding `Role` object.
+-   **`UserHandlerService`:** The `convertToUser` method in `com.hms.hospital_management_system.service.handler.UserHandlerService` has been updated to use `roleId` for role assignment, and `convertToUserResponse` now correctly converts the `RoleName` enum to its string representation.
 
-2.  **Configure the database:**
-    Open `src/main/resources/application.properties` and update the following properties with your PostgreSQL database details:
-    ```properties
-    spring.datasource.url=jdbc:postgresql://localhost:5432/hms
-    spring.datasource.username=postgres
-    spring.datasource.password=adnan
-    ```
+### Flexible Login Changes:
 
-3.  **Configure email for OTP:**
-    In the same `application.properties` file, configure your email account for sending OTPs. It is recommended to use a Gmail account with an "App Password".
-    ```properties
-    spring.mail.host=smtp.gmail.com
-    spring.mail.port=587
-    spring.mail.username=your-email@gmail.com
-    spring.mail.password=your-app-password
-    ```
+-   **`UserRepository`:** A new `findByUsername(String username)` method has been added to `com.hms.hospital_management_system.repository.UserRepository` to allow fetching users by their username.
+-   **`UserDetailsServiceImpl`:** The `loadUserByUsername` method in `com.hms.hospital_management_system.service.serviceImpl.UserDetailsServiceImpl` has been modified to first attempt to find a user by email, and if not found, then by username. This enables users to log in using either their registered email or username.
 
-4.  **Configure JWT Secret:**
-    In `application.properties`, set a secret for JWT signing:
-    ```properties
-    jwt.secret=your-jwt-secret
-    ```
+## How to Test
 
-5.  **Run the application:**
-    ```bash
-    mvn spring-boot:run
-    ```
-    The application will start on port 8000 (or the port configured in `application.properties`).
+### 1. Ensure Roles are Inserted
 
-## Features
+Upon application startup, the `data.sql` script will automatically insert the `ADMIN` and `USER` roles into the `roles` table. You can verify this by checking your database.
 
-*   User registration with email and password.
-*   OTP generation and sending to the user's email for account verification.
-*   User login with email and password.
-*   JWT (JSON Web Token) generation upon successful login and OTP verification.
-*   Secure API endpoints that require a valid JWT for access.
-*   User management (update, delete, get user details).
+-   `ADMIN` role will have `id = 1`
+-   `USER` role will have `id = 2`
 
-## API Endpoints
+### 2. Register a New User with a Role
 
-### Authentication
+**Endpoint:** `POST /api/users/register`
 
-#### 1. Register User
+**Request Body (JSON):**
 
-*   **Method:** `POST`
-*   **URL:** `/api/users/register`
-*   **Description:** Registers a new user and sends an OTP to their email for verification.
-*   **Request Body:**
-    ```json
-    {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "password123",
-        "role": "USER"
-    }
-    ```
-*   **Success Response (200 OK):**
-    ```json
-    {
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-        "role": "USER",
-        "token": null
-    }
-    ```
-*   **Error Response (400 Bad Request):**
-    ```
-    "Email already exists"
-    ```
+To register a user as an `ADMIN`:
 
-#### 2. Verify OTP
+```json
+{
+    "username": "adminuser",
+    "email": "admin@example.com",
+    "password": "password123",
+    "roleId": 1
+}
+```
 
-*   **Method:** `POST`
-*   **URL:** `/api/users/verify-otp`
-*   **Description:** Verifies the OTP sent to the user's email and activates the user account.
-*   **Request Params:**
-    *   `email`: The user's email address.
-    *   `otp`: The OTP received in the email.
-*   **Success Response (200 OK):**
-    ```json
-    {
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-        "role": "USER",
-        "token": "jwt-token-here"
-    }
-    ```
-*   **Error Response (400 Bad Request):**
-    ```
-    "Invalid OTP"
-    ```
+To register a user as a `USER`:
 
-#### 3. Resend OTP
+```json
+{
+    "username": "normaluser",
+    "email": "user@example.com",
+    "password": "password123",
+    "roleId": 2
+}
+```
 
-*   **Method:** `POST`
-*   **URL:** `/api/users/resend-otp`
-*   **Description:** Resends the OTP to the user's email address.
-*   **Request Params:**
-    *   `email`: The user's email address.
-*   **Success Response (200 OK):**
-    ```
-    "OTP resent successfully"
-    ```
-*   **Error Response (400 Bad Request):**
-    ```
-    "User not found"
-    ```
+**Expected Response:**
 
-#### 4. Login User
+A successful registration will return a `200 OK` status with the `UserResponse` object, including the assigned role.
 
-*   **Method:** `POST`
-*   **URL:** `/api/users/login`
-*   **Description:** Authenticates a user and returns a JWT.
-*   **Request Body:**
-    ```json
-    {
-        "email": "test@example.com",
-        "password": "password123"
-    }
-    ```
-*   **Success Response (200 OK):**
-    ```json
-    {
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-        "role": "USER",
-        "token": "jwt-token-here"
-    }
-    ```
-*   **Error Response (401 Unauthorized):**
-    ```
-    "Invalid credentials"
-    ```
+### 3. Update an Existing User's Details (including password and role)
 
-### User Management
+**Endpoint:** `PUT /api/users/{id}`
 
-*All user management endpoints require a valid JWT in the `Authorization` header as a Bearer token.*
+**Request Body (JSON):**
 
-#### 5. Get All Users
+To update a user's details, including changing their password and role (assuming user ID is 1):
 
-*   **Method:** `GET`
-*   **URL:** `/api/users`
-*   **Description:** Retrieves a list of all users.
-*   **Success Response (200 OK):**
-    ```json
-    [
-        {
-            "id": 1,
-            "username": "testuser",
-            "email": "test@example.com",
-            "role": "USER",
-            "token": null
-        }
-    ]
-    ```
+```json
+{
+    "username": "updateduser",
+    "email": "updated@example.com",
+    "password": "newStrongPassword123",
+    "roleId": 1 
+}
+```
 
-#### 6. Get User by ID
+**Expected Response:**
 
-*   **Method:** `GET`
-*   **URL:** `/api/users/{id}`
-*   **Description:** Retrieves a single user by their ID.
-*   **Success Response (200 OK):**
-    ```json
-    {
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-        "role": "USER",
-        "token": null
-    }
-    ```
-*   **Error Response (404 Not Found):** If the user with the given ID is not found.
+A successful update will return a `200 OK` status with the updated `UserResponse` object.
 
-#### 7. Update User
+### 4. Login with Username or Email
 
-*   **Method:** `PUT`
-*   **URL:** `/api/users/{id}`
-*   **Description:** Updates a user's information.
-*   **Request Body:**
-    ```json
-    {
-        "username": "updateduser",
-        "email": "updated@example.com",
-        "password": "newpassword123",
-        "role": "ADMIN"
-    }
-    ```
-*   **Success Response (200 OK):**
-    ```json
-    {
-        "id": 1,
-        "username": "updateduser",
-        "email": "updated@example.com",
-        "role": "ADMIN",
-        "token": null
-    }
-    ```
-*   **Error Response (404 Not Found):** If the user with the given ID is not found.
+**Endpoint:** `POST /api/users/login`
 
-#### 8. Delete User
+**Request Body (JSON):**
 
-*   **Method:** `DELETE`
-*   **URL:** `/api/users/{id}`
-*   **Description:** Deletes a user by their ID.
-*   **Success Response (204 No Content):**
-*   **Error Response (404 Not Found):** If the user with the given ID is not found.
+To login with email:
+
+```json
+{
+    "email": "admin@example.com",
+    "password": "password123"
+}
+```
+
+To login with username:
+
+```json
+{
+    "username": "adminuser",
+    "password": "password123"
+}
+```
+
+**Expected Response:**
+
+A successful login will return a `200 OK` status with the `UserResponse` object, including a JWT token.
+
+### 5. Verify OTP
+
+**Endpoint:** `POST /api/users/verify-otp`
+
+**Request Body (JSON):**
+
+```json
+{
+    "email": "user@example.com",
+    "otp": "123456" 
+}
+```
+
+**Expected Response:**
+
+A successful OTP verification will return a `200 OK` status with the `UserResponse` object, including a JWT token.
+
+### 6. Resend OTP
+
+**Endpoint:** `POST /api/users/resend-otp`
+
+**Request Body (JSON):**
+
+```json
+{
+    "email": "user@example.com"
+}
+```
+
+**Expected Response:**
+
+A successful OTP resend will return a `200 OK` status with the message "OTP resent successfully".
+
+### 7. Delete a User
+
+**Endpoint:** `DELETE /api/users/{id}`
+
+**Path Variable:** `{id}` - The ID of the user to delete.
+
+**Example:** `DELETE /api/users/1` (to delete user with ID 1)
+
+**Expected Response:**
+
+A successful deletion will return a `204 No Content` status.
+
+---
+
+This README will be further expanded with more details about other functionalities and setup instructions.

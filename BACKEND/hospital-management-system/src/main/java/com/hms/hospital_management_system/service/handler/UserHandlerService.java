@@ -44,8 +44,11 @@ public class UserHandlerService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        Role role = roleRepository.findByName(request.getRole());
-        user.setRole(role);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setPassword(request.getPassword());
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
@@ -57,7 +60,9 @@ public class UserHandlerService {
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
-        userResponse.setRole(user.getRole().getName());
+        if (user.getRole() != null) {
+            userResponse.setRole(user.getRole().getName().name());
+        }
         userResponse.setEnabled(user.isEnabled());
         userResponse.setCreatedAt(user.getCreatedAt());
         userResponse.setUpdatedAt(user.getUpdatedAt());

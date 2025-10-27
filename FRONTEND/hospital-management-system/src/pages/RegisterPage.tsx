@@ -11,14 +11,12 @@ import { SegmentedControl } from "@mantine/core";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
-type Role = "DOCTOR" | "NURSE" | "ADMIN" | "PATIENT";
-
 interface FormState {
   username: string;
   email: string;
   password: string;
   retypePassword: string;
-  role: Role;
+  roleId: number;
 }
 
 interface AlertState {
@@ -35,13 +33,13 @@ function RegisterPage() {
     email: "",
     password: "",
     retypePassword: "",
-    role: "DOCTOR",
+    roleId: 1,
   });
   const [alert, setAlert] = useState<AlertState>({ message: "", type: null });
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const updateFormField = (field: keyof FormState, value: string) => {
+  const updateFormField = (field: keyof FormState, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -57,16 +55,25 @@ function RegisterPage() {
     setIsLoading(true);
 
     try {
+      const payload = {
+        username: formState.username.trim(),
+        email: formState.email.trim(),
+        password: formState.password,
+        roleId: formState.roleId,
+      };
+
       const response = await api.post(
         process.env.REACT_APP_REGISTER_ENDPOINT || "/users/register",
-        formState
+        payload
       );
 
-      if (response.data.email) {
+      if (response.status === 200 || response.status === 201) {
         setAlert({ message: "Registration successful!", type: "success" });
         setTimeout(() => {
           navigate(`/verify-otp?email=${encodeURIComponent(formState.email)}`);
         }, 1000);
+      } else {
+        throw new Error("Unexpected response from server");
       }
     } catch (err: any) {
       const errorMessage =
@@ -123,41 +130,37 @@ function RegisterPage() {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <SegmentedControl
-            value={formState.role}
-            onChange={(value) => updateFormField("role", value)}
+            value={String(formState.roleId)}
+            onChange={(value) => updateFormField("roleId", parseInt(value))}
             fullWidth
             data={[
-              { label: "Doctor", value: "DOCTOR" },
-              { label: "Nurse", value: "NURSE" },
-              { label: "Admin", value: "ADMIN" },
-              { label: "Patient", value: "PATIENT" },
+              { label: "Admin", value: "1" },
+              { label: "User", value: "2" },
+              { label: "Doctor", value: "3" },
+              { label: "Nurse", value: "4" },
+              { label: "Patient", value: "5" },
             ]}
+            className="border border-white/30 rounded-xl"
             styles={{
               root: {
-                backgroundColor: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "0.75rem",
-                padding: "0.25rem",
-                backdropFilter: "blur(4px)",
+                background: 'transparent',
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderRadius: '0.75rem', // rounded-xl
               },
               control: {
-                backgroundColor: "transparent !important",
-                border: "none",
+                background: 'transparent',
+                borderColor: 'transparent',
               },
               label: {
-                color: "rgba(255, 255, 255, 0.8)",
-                fontSize: "0.875rem",
+                color: 'white',
               },
               indicator: {
-                background:
-                  "linear-gradient(to right, rgb(6, 182, 212), rgb(168, 85, 247))",
-                borderRadius: "0.5rem",
-                boxShadow: "0 4px 6px -1px rgba(6, 182, 212, 0.3)",
+                background: 'linear-gradient(to right, #06b6d4, #a855f7)',
+                borderColor: 'transparent',
               },
             }}
           />
 
-          {/* Username input */}
           <div className="relative">
             <IconMail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
             <input
@@ -165,11 +168,10 @@ function RegisterPage() {
               placeholder="Username"
               value={formState.username}
               onChange={(e) => updateFormField("username", e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
             />
           </div>
 
-          {/* Email input */}
           <div className="relative">
             <IconMail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
             <input
@@ -177,11 +179,10 @@ function RegisterPage() {
               placeholder="Email"
               value={formState.email}
               onChange={(e) => updateFormField("email", e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
             />
           </div>
 
-          {/* Password input */}
           <div className="relative">
             <IconLock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
             <input
@@ -189,22 +190,17 @@ function RegisterPage() {
               placeholder="Password"
               value={formState.password}
               onChange={(e) => updateFormField("password", e.target.value)}
-              className="w-full pl-12 pr-12 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-sm"
+              className="w-full pl-12 pr-12 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
             >
-              {showPassword ? (
-                <IconEyeOff className="h-5 w-5" />
-              ) : (
-                <IconEye className="h-5 w-5" />
-              )}
+              {showPassword ? <IconEyeOff /> : <IconEye />}
             </button>
           </div>
 
-          {/* Confirm Password input */}
           <div className="relative">
             <IconLock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
             <input
@@ -214,7 +210,7 @@ function RegisterPage() {
               onChange={(e) =>
                 updateFormField("retypePassword", e.target.value)
               }
-              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
             />
           </div>
 
@@ -229,10 +225,7 @@ function RegisterPage() {
 
         <p className="mt-6 text-center text-white/70 text-sm">
           Already have an account?{" "}
-          <a
-            href="/login"
-            className="text-cyan-400 hover:text-cyan-300 font-medium"
-          >
+          <a href="/" className="text-cyan-400 hover:text-cyan-300 font-medium">
             Sign in
           </a>
         </p>

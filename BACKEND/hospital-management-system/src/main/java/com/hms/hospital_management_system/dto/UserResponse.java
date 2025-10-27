@@ -12,6 +12,7 @@ public class UserResponse {
     private String email;
     private boolean enabled;
     private String role;
+    private String token;
     private Date createdAt;
     private Date updatedAt;
 }

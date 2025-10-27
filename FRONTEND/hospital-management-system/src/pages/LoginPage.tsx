@@ -54,12 +54,15 @@ function LoginPage() {
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1000);
-      } else if (response.data.message) {
-        setAlert({ message: response.data.message, type: "success" });
+      } else {
+        const msg = response.data.message || "Login successful!";
+        setAlert({ message: msg, type: "success" });
       }
     } catch (err: any) {
       const errorMessage =
-        err.response?.data || "Login failed. Please try again.";
+        err.response?.data?.message ||
+        err.response?.data ||
+        "Login failed. Please try again.";
       setAlert({ message: errorMessage, type: "error" });
     } finally {
       setIsLoading(false);
@@ -68,7 +71,6 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 relative overflow-hidden">
-      {/* Background image with overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('bg.png')" }}
@@ -77,7 +79,6 @@ function LoginPage() {
       </div>
 
       <div className="relative bg-transparent backdrop-blur-xl border border-white/30 p-8 rounded-2xl shadow-2xl w-full max-w-md z-10 hover:border-white/40 transition-all duration-300">
-        {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative mb-4">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-lg opacity-50"></div>
@@ -93,7 +94,6 @@ function LoginPage() {
           <p className="text-white/80 text-sm mt-2">Sign in to your account</p>
         </div>
 
-        {/* Alert messages */}
         {alert.type && (
           <div
             className={`flex items-center gap-3 p-4 rounded-lg mb-6 animate-fade-in backdrop-blur-sm ${
@@ -112,10 +112,9 @@ function LoginPage() {
         )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Email input */}
           <div>
             <label className="block text-sm font-medium text-white/90 mb-2">
-              Email Address
+              Email
             </label>
             <div className="relative group">
               <IconMail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-cyan-400 transition-colors" />
@@ -130,7 +129,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Password input */}
           <div>
             <label className="block text-sm font-medium text-white/90 mb-2">
               Password
@@ -149,7 +147,6 @@ function LoginPage() {
                 type="button"
                 onClick={togglePasswordVisibility}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <IconEyeOff className="h-5 w-5" />
@@ -160,42 +157,18 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Submit button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3.5 rounded-xl font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-cyan-500/25"
+            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3.5 rounded-xl font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/25"
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Signing in...
-              </span>
-            ) : (
-              "Sign In"
-            )}
+            {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-white/70 text-sm">
-            Don't have an account?{" "}
+            Don’t have an account?{" "}
             <a
               href="/register"
               className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"

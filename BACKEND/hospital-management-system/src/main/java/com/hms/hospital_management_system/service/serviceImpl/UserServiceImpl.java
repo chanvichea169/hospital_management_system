@@ -47,6 +47,11 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userHandlerService.convertToUser(request);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         String otp = generateOtp();
@@ -71,6 +76,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
         UserResponse response = userHandlerService.convertToUserResponse(user);
+        response.setToken(token);
         return response;
     }
 
@@ -94,6 +100,7 @@ public class UserServiceImpl implements UserService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         final String token = jwtUtil.generateToken(userDetails);
         UserResponse response = userHandlerService.convertToUserResponse(user);
+        response.setToken(token);
 
         return response;
     }
@@ -127,8 +134,11 @@ public class UserServiceImpl implements UserService {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        Role role = roleRepository.findByName(request.getRole());
-        user.setRole(role);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setUpdatedAt(new java.util.Date());
 
         userRepository.save(user);

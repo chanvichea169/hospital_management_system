@@ -1,10 +1,8 @@
 package com.hms.hospital_management_system.model;
 
-import com.hms.hospital_management_system.enumeration.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.management.relation.Role;
 import java.util.Date;
 
 @Setter
@@ -24,8 +22,9 @@ public class User {
     private String password;
     private String otp;
     private boolean enabled;
-    @Enumerated(EnumType.STRING)
-    private Roles role;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
     private Date createdAt;
     private Date updatedAt;
 }

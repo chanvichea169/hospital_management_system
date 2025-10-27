@@ -3,7 +3,9 @@ package com.hms.hospital_management_system.service.serviceImpl;
 import com.hms.hospital_management_system.Api.JwtUtil;
 import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
+import com.hms.hospital_management_system.model.Role;
 import com.hms.hospital_management_system.model.User;
+import com.hms.hospital_management_system.repository.RoleRepository;
 import com.hms.hospital_management_system.repository.UserRepository;
 import com.hms.hospital_management_system.service.UserService;
 import com.hms.hospital_management_system.service.handler.UserHandlerService;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserResponse registerUser(UserRequest request) {
@@ -68,7 +71,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
         UserResponse response = userHandlerService.convertToUserResponse(user);
-        response.setToken(token);
         return response;
     }
 
@@ -92,7 +94,6 @@ public class UserServiceImpl implements UserService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         final String token = jwtUtil.generateToken(userDetails);
         UserResponse response = userHandlerService.convertToUserResponse(user);
-        response.setToken(token);
 
         return response;
     }
@@ -126,7 +127,8 @@ public class UserServiceImpl implements UserService {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        user.setRole(request.getRole());
+        Role role = roleRepository.findByName(request.getRole());
+        user.setRole(role);
         user.setUpdatedAt(new java.util.Date());
 
         userRepository.save(user);

@@ -57,7 +57,7 @@ const SideBar = () => {
   }
 
   return (
-    <div className="w-72 bg-dark-100 flex flex-col items-center p-6 min-h-screen">
+    <div className="w-72 bg-dark-50 flex flex-col items-center p-6 min-h-screen">
       <Link to="/" className="flex flex-col items-center cursor-pointer">
         <img
           src="logo.png"

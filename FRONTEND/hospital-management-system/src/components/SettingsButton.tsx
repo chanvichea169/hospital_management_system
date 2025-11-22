@@ -92,6 +92,15 @@ export default function SettingsButton() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
+  // Effect to apply dark mode class to HTML element
+  useEffect(() => {
+    if (colorScheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [colorScheme]);
+
   const handleToggle = (key: keyof Settings) =>
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
 
@@ -100,13 +109,29 @@ export default function SettingsButton() {
 
   return (
     <>
-      {/* Floating Settings Button */}
+      {/* Floating Dark Mode Toggle Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <Tooltip label="Settings" withArrow>
+        <Tooltip label={colorScheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'} withArrow>
           <ActionIcon
             size="xl"
             radius="xl"
             color="ocean-blue"
+            variant="filled"
+            className="transition-transform hover:scale-110 shadow-lg"
+            onClick={toggleColorScheme}
+          >
+            {colorScheme === 'dark' ? <IconSun size={24} /> : <IconMoonStars size={24} />}
+          </ActionIcon>
+        </Tooltip>
+      </div>
+
+      {/* Floating Settings Button (separate) */}
+      <div className="fixed bottom-6 right-20 z-50">
+        <Tooltip label="Other Settings" withArrow>
+          <ActionIcon
+            size="xl"
+            radius="xl"
+            color="gray"
             variant="filled"
             className="transition-transform hover:scale-110 shadow-lg"
             onClick={() => setOpened(true)}
@@ -133,12 +158,6 @@ export default function SettingsButton() {
           <Divider />
 
           <SimpleGrid cols={2} spacing="md">
-            <SettingItem
-              label="Dark Mode"
-              icon={<IconSun size={18} />}
-              checked={colorScheme === "dark"}
-              onToggle={toggleColorScheme}
-            />
             <SettingItem
               label="Animations"
               icon={<IconMoonStars size={18} />}

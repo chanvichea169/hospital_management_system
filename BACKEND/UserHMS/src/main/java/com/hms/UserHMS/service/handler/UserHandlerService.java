@@ -4,6 +4,7 @@ import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
 import com.hms.hospital_management_system.model.Role;
 import com.hms.hospital_management_system.model.User;
+import com.hms.hospital_management_system.model.UserProfile;
 import com.hms.hospital_management_system.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,18 @@ public class UserHandlerService {
         user.setPassword(request.getPassword());
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setFirstName(request.getFirstName());
+        userProfile.setLastName(request.getLastName());
+        userProfile.setPhone(request.getPhone());
+        userProfile.setAvatar(request.getAvatar());
+        userProfile.setAddress(request.getAddress());
+        userProfile.setGender(request.getGender());
+        userProfile.setDob(request.getDob());
+        userProfile.setUser(user);
+        user.setUserProfile(userProfile);
+
         return user;
     }
 
@@ -66,6 +79,17 @@ public class UserHandlerService {
         userResponse.setEnabled(user.isEnabled());
         userResponse.setCreatedAt(user.getCreatedAt());
         userResponse.setUpdatedAt(user.getUpdatedAt());
+
+        if (user.getUserProfile() != null) {
+            userResponse.setFirstName(user.getUserProfile().getFirstName());
+            userResponse.setLastName(user.getUserProfile().getLastName());
+            userResponse.setPhone(user.getUserProfile().getPhone());
+            userResponse.setAvatar(user.getUserProfile().getAvatar());
+            userResponse.setAddress(user.getUserProfile().getAddress());
+            userResponse.setGender(user.getUserProfile().getGender());
+            userResponse.setDob(user.getUserProfile().getDob());
+        }
+
         return userResponse;
     }
 }

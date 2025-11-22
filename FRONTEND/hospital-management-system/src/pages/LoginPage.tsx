@@ -52,7 +52,7 @@ function LoginPage() {
           type: "success",
         });
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/";
         }, 1000);
       } else {
         const msg = response.data.message || "Login successful!";
@@ -89,7 +89,7 @@ function LoginPage() {
             />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-center">
-            Preah Ang Duong Hospital
+            Hospital Management System
           </h1>
           <p className="text-white/80 text-sm mt-2">Sign in to your account</p>
         </div>

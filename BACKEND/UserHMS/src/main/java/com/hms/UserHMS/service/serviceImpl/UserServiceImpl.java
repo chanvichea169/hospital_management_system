@@ -5,6 +5,7 @@ import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
 import com.hms.hospital_management_system.model.Role;
 import com.hms.hospital_management_system.model.User;
+import com.hms.hospital_management_system.model.UserProfile;
 import com.hms.hospital_management_system.repository.RoleRepository;
 import com.hms.hospital_management_system.repository.UserRepository;
 import com.hms.hospital_management_system.service.UserService;
@@ -140,6 +141,20 @@ public class UserServiceImpl implements UserService {
             user.setRole(role);
         }
         user.setUpdatedAt(new java.util.Date());
+
+        UserProfile userProfile = user.getUserProfile();
+        if (userProfile == null) {
+            userProfile = new UserProfile();
+            userProfile.setUser(user);
+            user.setUserProfile(userProfile);
+        }
+        userProfile.setFirstName(request.getFirstName());
+        userProfile.setLastName(request.getLastName());
+        userProfile.setPhone(request.getPhone());
+        userProfile.setAvatar(request.getAvatar());
+        userProfile.setAddress(request.getAddress());
+        userProfile.setGender(request.getGender());
+        userProfile.setDob(request.getDob());
 
         userRepository.save(user);
         return userHandlerService.convertToUserResponse(user);

@@ -8,4 +8,11 @@ public class UserRequest {
     private String email;
     private String password;
     private Long roleId;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private String avatar;
+    private String address;
+    private String gender;
+    private String dob;
 }

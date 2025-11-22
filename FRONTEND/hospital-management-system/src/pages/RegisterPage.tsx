@@ -104,7 +104,7 @@ function RegisterPage() {
             />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-center">
-            Preah Ang Duong Hospital
+            Hospital Management System
           </h1>
           <p className="text-white/80 text-sm mt-2 text-center">
             Create your account
@@ -143,20 +143,20 @@ function RegisterPage() {
             className="border border-white/30 rounded-xl"
             styles={{
               root: {
-                background: 'transparent',
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-                borderRadius: '0.75rem', // rounded-xl
+                background: "transparent",
+                borderColor: "rgba(255, 255, 255, 0.3)",
+                borderRadius: "0.75rem", // rounded-xl
               },
               control: {
-                background: 'transparent',
-                borderColor: 'transparent',
+                background: "transparent",
+                borderColor: "transparent",
               },
               label: {
-                color: 'white',
+                color: "white",
               },
               indicator: {
-                background: 'linear-gradient(to right, #06b6d4, #a855f7)',
-                borderColor: 'transparent',
+                background: "linear-gradient(to right, #06b6d4, #a855f7)",
+                borderColor: "transparent",
               },
             }}
           />

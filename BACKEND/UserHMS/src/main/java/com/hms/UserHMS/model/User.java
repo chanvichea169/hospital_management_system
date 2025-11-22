@@ -25,6 +25,9 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile userProfile;
+
     private Date createdAt;
     private Date updatedAt;
 }

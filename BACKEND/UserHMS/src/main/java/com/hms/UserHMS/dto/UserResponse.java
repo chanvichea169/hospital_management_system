@@ -15,4 +15,11 @@ public class UserResponse {
     private String token;
     private Date createdAt;
     private Date updatedAt;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private String avatar;
+    private String address;
+    private String gender;
+    private String dob;
 }

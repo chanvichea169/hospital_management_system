@@ -57,18 +57,20 @@ const SideBar = () => {
   }
 
   return (
-    <div className="w-72 bg-dark-50 flex flex-col items-center p-6 min-h-screen">
+    <div className="w-72 bg-white dark:bg-gray-900 flex flex-col items-center p-6 min-h-screen transition-colors duration-300">
       <Link to="/" className="flex flex-col items-center cursor-pointer">
         <img
           src="logo.png"
-          alt="Preah Ang Duong Hospital Logo"
-          className="w-24 h-24 object-contain mb-2 rounded-full border-4 border-white shadow-[0_0_15px_white]"
+          alt="Hospital Management System Logo"
+          className="w-24 h-24 object-contain mb-2 rounded-full border-4 border-white shadow-[0_0_15px_white] dark:border-gray-700 dark:shadow-[0_0_15px_#374151] transition-colors duration-300"
         />
-        <span className="mt-3 font-heading font-bold text-xl text-[#09aedb] text-center whitespace-nowrap">
-          Preah Ang Duong Hospital
+        <span className="mt-3 font-heading font-bold text-xl text-[#09aedb] dark:text-cyan-400 text-center whitespace-nowrap transition-colors duration-300">
+          Hospital Management System
         </span>
       </Link>
-      <p className="mt-2 text-lg text-white">Admin</p>
+      <p className="mt-2 text-lg text-gray-800 dark:text-gray-200 transition-colors duration-300">
+        Admin
+      </p>
 
       <nav className="mt-12 w-full">
         <ul className="flex flex-col gap-4">
@@ -77,10 +79,10 @@ const SideBar = () => {
               <NavLink
                 to={link.url}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2 font-semibold rounded-lg transition ${
+                  `flex items-center gap-3 px-4 py-2 font-semibold rounded-lg transition-colors duration-300 ${
                     isActive
-                      ? "bg-cyan-400 text-dark-50"
-                      : "text-gray-300 hover:text-dark-50 hover:bg-light-50"
+                      ? "bg-cyan-400 text-white"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`
                 }
               >

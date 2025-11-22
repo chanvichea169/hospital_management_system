@@ -60,7 +60,7 @@ function VerifyOtpPage() {
       if (response.status === 200) {
         setAlert({ message: "OTP verified successfully!", type: "success" });
         setTimeout(() => {
-          navigate("/dashboard"); // Redirect to dashboard after success
+          navigate("/");
         }, 1000);
       } else {
         setAlert({ message: "Invalid OTP. Please try again.", type: "error" });

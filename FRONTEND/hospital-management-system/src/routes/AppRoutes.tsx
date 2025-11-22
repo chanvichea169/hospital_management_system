@@ -13,6 +13,8 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import VerifyOtpPage from "../pages/VerifyOtpPage";
 import SettingPage from "../layouts/SettingPage";
+import DoctorPage from "../layouts/DoctorPage";
+import ProfilePage from "../pages/ProfilePage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
@@ -92,7 +94,7 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ProtectedLayout>
-                <div>Doctors Page</div>
+                <DoctorPage />
               </ProtectedLayout>
             </ProtectedRoute>
           }
@@ -143,6 +145,17 @@ function AppRoutes() {
             <ProtectedRoute>
               <ProtectedLayout>
                 <SettingPage />
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <ProfilePage />
               </ProtectedLayout>
             </ProtectedRoute>
           }

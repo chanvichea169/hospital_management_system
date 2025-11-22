@@ -1,7 +1,7 @@
-package com.hms.hospital_management_system.service.serviceImpl;
+package com.hms.UserHMS.service.serviceImpl;
 
-import com.hms.hospital_management_system.model.User;
-import com.hms.hospital_management_system.repository.UserRepository;
+import com.hms.UserHMS.model.User;
+import com.hms.UserHMS.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
+        com.hms.UserHMS.model.User user = userRepository.findByEmail(username)
                 .orElseGet(() -> userRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found with email or username: " + username)));
 

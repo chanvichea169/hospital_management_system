@@ -1,13 +1,13 @@
-package com.hms.UserHMS;
+package com.hms.GatewayHMS;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UserHMSApplication {
+public class GatewayHmsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserHMSApplication.class, args);
+		SpringApplication.run(GatewayHmsApplication.class, args);
 	}
 
 }

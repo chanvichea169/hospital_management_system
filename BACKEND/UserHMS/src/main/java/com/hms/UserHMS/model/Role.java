@@ -1,6 +1,6 @@
-package com.hms.hospital_management_system.model;
+package com.hms.UserHMS.model;
 
-import com.hms.hospital_management_system.enumeration.RoleName;
+import com.hms.UserHMS.enumeration.RoleName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

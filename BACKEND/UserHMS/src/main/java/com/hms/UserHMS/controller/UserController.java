@@ -1,11 +1,11 @@
-package com.hms.hospital_management_system.controller;
+package com.hms.UserHMS.controller;
 
-import com.hms.hospital_management_system.dto.UserRequest;
-import com.hms.hospital_management_system.dto.UserResponse;
-import com.hms.hospital_management_system.dto.VerifyOtpRequest;
-import com.hms.hospital_management_system.service.UserService;
+import com.hms.UserHMS.dto.UserRequest;
+import com.hms.UserHMS.dto.UserResponse;
+import com.hms.UserHMS.dto.VerifyOtpRequest;
+import com.hms.UserHMS.exception.HmsException;
+import com.hms.UserHMS.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,68 +21,50 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRequest request) {
-        try {
-            return ResponseEntity.ok(userService.registerUser(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) throws HmsException {
+        UserResponse response = userService.registerUser(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserRequest request) {
-        try {
-            return ResponseEntity.ok(userService.loginUser(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> loginUser(@RequestBody UserRequest request) throws HmsException {
+        UserResponse response = userService.loginUser(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
-        try {
-            if (request.getEmail() == null || request.getOtp() == null ||
-                    request.getEmail().isBlank() || request.getOtp().isBlank()) {
-                return ResponseEntity.badRequest().body("Email and OTP are required");
-            }
-
-            UserResponse response = userService.verifyOtp(
-                    request.getEmail().trim(),
-                    request.getOtp().trim()
-            );
-
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    public ResponseEntity<UserResponse> verifyOtp(@RequestBody VerifyOtpRequest request) throws HmsException {
+        if (request.getEmail() == null || request.getOtp() == null ||
+                request.getEmail().isBlank() || request.getOtp().isBlank()) {
+            throw new HmsException("EMAIL_AND_OTP_REQUIRED", "400");
         }
+
+        UserResponse response = userService.verifyOtp(request.getEmail().trim(), request.getOtp().trim());
+        return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/resend-otp")
-    public ResponseEntity<?> resendOtp(@RequestBody Map<String, String> request) {
-        try {
-            String email = request.get("email");
-            userService.resendOtp(email);
-            return ResponseEntity.ok("OTP resent successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    public ResponseEntity<String> resendOtp(@RequestBody Map<String, String> request) throws HmsException {
+        String email = request.get("email");
+        if (email == null || email.isBlank()) {
+            throw new HmsException("EMAIL_REQUIRED", "400");
         }
+
+        userService.resendOtp(email.trim());
+        return ResponseEntity.ok("OTP resent successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
-        try {
-            return ResponseEntity.ok(userService.updateUser(id, request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest request) throws HmsException {
+        UserResponse response = userService.updateUser(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) throws HmsException {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND", "404"));
     }
 
     @GetMapping
@@ -91,12 +73,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws HmsException {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

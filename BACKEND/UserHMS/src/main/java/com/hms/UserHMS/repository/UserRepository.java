@@ -1,6 +1,7 @@
-package com.hms.hospital_management_system.repository;
+package com.hms.UserHMS.repository;
 
-import com.hms.hospital_management_system.model.User;
+
+import com.hms.UserHMS.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

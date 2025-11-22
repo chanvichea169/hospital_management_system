@@ -1,15 +1,16 @@
-package com.hms.hospital_management_system.service.serviceImpl;
+package com.hms.UserHMS.service.serviceImpl;
 
-import com.hms.hospital_management_system.Api.JwtUtil;
-import com.hms.hospital_management_system.dto.UserRequest;
-import com.hms.hospital_management_system.dto.UserResponse;
-import com.hms.hospital_management_system.model.Role;
-import com.hms.hospital_management_system.model.User;
-import com.hms.hospital_management_system.model.UserProfile;
-import com.hms.hospital_management_system.repository.RoleRepository;
-import com.hms.hospital_management_system.repository.UserRepository;
-import com.hms.hospital_management_system.service.UserService;
-import com.hms.hospital_management_system.service.handler.UserHandlerService;
+import com.hms.UserHMS.jwt.JwtUtil;
+import com.hms.UserHMS.dto.UserRequest;
+import com.hms.UserHMS.dto.UserResponse;
+import com.hms.UserHMS.exception.HmsException;
+import com.hms.UserHMS.model.Role;
+import com.hms.UserHMS.model.User;
+import com.hms.UserHMS.model.UserProfile;
+import com.hms.UserHMS.repository.RoleRepository;
+import com.hms.UserHMS.repository.UserRepository;
+import com.hms.UserHMS.service.UserService;
+import com.hms.UserHMS.service.handler.UserHandlerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -39,67 +40,74 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     @Override
-    public UserResponse registerUser(UserRequest request) {
+    public UserResponse registerUser(UserRequest request) throws HmsException {
         userHandlerService.validateUsername(request.getUsername());
         userHandlerService.validateEmail(request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new HmsException("EMAIL_ALREADY_EXISTS");
         }
 
         User user = userHandlerService.convertToUser(request);
+
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+                    .orElseThrow(() -> new HmsException("ROLE_NOT_FOUND"));
             user.setRole(role);
         }
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         String otp = generateOtp();
         user.setOtp(otp);
         user.setEnabled(false);
 
         userRepository.save(user);
-
         sendOtpEmail(user.getEmail(), otp);
 
         return userHandlerService.convertToUserResponse(user);
     }
 
     @Override
-    public UserResponse loginUser(UserRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+    public UserResponse loginUser(UserRequest request) throws HmsException {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (Exception e) {
+            throw new HmsException("INVALID_CREDENTIALS");
+        }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        final String token = jwtUtil.generateToken(userDetails);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
 
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
+
         UserResponse response = userHandlerService.convertToUserResponse(user);
         response.setToken(token);
         return response;
     }
 
     @Override
-    public UserResponse verifyOtp(String email, String otp) {
+    public UserResponse verifyOtp(String email, String otp) throws HmsException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
 
         if (user.getOtp() == null) {
-            throw new RuntimeException("No OTP found for this user");
+            throw new HmsException("NO_OTP_FOUND");
         }
 
         if (!user.getOtp().trim().equals(otp.trim())) {
-            throw new RuntimeException("Invalid OTP");
+            throw new HmsException("INVALID_OTP");
         }
 
         user.setEnabled(true);
         user.setOtp(null);
         userRepository.save(user);
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        final String token = jwtUtil.generateToken(userDetails);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        String token = jwtUtil.generateToken(userDetails);
+
         UserResponse response = userHandlerService.convertToUserResponse(user);
         response.setToken(token);
 
@@ -107,12 +115,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void resendOtp(String email) {
+    public void resendOtp(String email) throws HmsException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
 
         if (user.isEnabled()) {
-            throw new RuntimeException("User is already enabled");
+            throw new HmsException("USER_ALREADY_ENABLED");
         }
 
         String otp = generateOtp();
@@ -123,47 +131,52 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse updateUser(Long id, UserRequest request) {
+    public UserResponse updateUser(Long id, UserRequest request) throws HmsException {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
 
         userHandlerService.validateUsername(request.getUsername());
         userHandlerService.validateEmail(request.getEmail());
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
+
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
+
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())
-                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+                    .orElseThrow(() -> new HmsException("ROLE_NOT_FOUND"));
             user.setRole(role);
         }
+
         user.setUpdatedAt(new java.util.Date());
 
-        UserProfile userProfile = user.getUserProfile();
-        if (userProfile == null) {
-            userProfile = new UserProfile();
-            userProfile.setUser(user);
-            user.setUserProfile(userProfile);
+        UserProfile profile = user.getUserProfile();
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.setUser(user);
+            user.setUserProfile(profile);
         }
-        userProfile.setFirstName(request.getFirstName());
-        userProfile.setLastName(request.getLastName());
-        userProfile.setPhone(request.getPhone());
-        userProfile.setAvatar(request.getAvatar());
-        userProfile.setAddress(request.getAddress());
-        userProfile.setGender(request.getGender());
-        userProfile.setDob(request.getDob());
+
+        profile.setFirstName(request.getFirstName());
+        profile.setLastName(request.getLastName());
+        profile.setPhone(request.getPhone());
+        profile.setAvatar(request.getAvatar());
+        profile.setAddress(request.getAddress());
+        profile.setGender(request.getGender());
+        profile.setDob(request.getDob());
 
         userRepository.save(user);
         return userHandlerService.convertToUserResponse(user);
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id) throws HmsException {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
+
         userRepository.delete(user);
     }
 
@@ -183,8 +196,7 @@ public class UserServiceImpl implements UserService {
 
     private String generateOtp() {
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        return String.valueOf(otp);
+        return String.valueOf(100000 + random.nextInt(900000));
     }
 
     private void sendOtpEmail(String to, String otp) {

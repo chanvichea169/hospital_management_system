@@ -1,4 +1,4 @@
-package com.hms.hospital_management_system.enumeration;
+package com.hms.UserHMS.enumeration;
 
 public enum RoleName {
     ADMIN,

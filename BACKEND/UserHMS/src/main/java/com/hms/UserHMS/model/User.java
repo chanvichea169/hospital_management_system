@@ -1,4 +1,4 @@
-package com.hms.hospital_management_system.model;
+package com.hms.UserHMS.model;
 
 import jakarta.persistence.*;
 import lombok.*;

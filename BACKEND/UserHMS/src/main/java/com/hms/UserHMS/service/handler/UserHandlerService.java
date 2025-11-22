@@ -1,11 +1,11 @@
-package com.hms.hospital_management_system.service.handler;
+package com.hms.UserHMS.service.handler;
 
-import com.hms.hospital_management_system.dto.UserRequest;
-import com.hms.hospital_management_system.dto.UserResponse;
-import com.hms.hospital_management_system.model.Role;
-import com.hms.hospital_management_system.model.User;
-import com.hms.hospital_management_system.model.UserProfile;
-import com.hms.hospital_management_system.repository.RoleRepository;
+import com.hms.UserHMS.dto.UserRequest;
+import com.hms.UserHMS.dto.UserResponse;
+import com.hms.UserHMS.model.Role;
+import com.hms.UserHMS.model.User;
+import com.hms.UserHMS.model.UserProfile;
+import com.hms.UserHMS.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

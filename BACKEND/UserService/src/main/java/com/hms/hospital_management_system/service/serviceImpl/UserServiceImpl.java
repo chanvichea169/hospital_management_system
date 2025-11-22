@@ -3,7 +3,9 @@ package com.hms.hospital_management_system.service.serviceImpl;
 import com.hms.hospital_management_system.Api.JwtUtil;
 import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
+import com.hms.hospital_management_system.model.Role;
 import com.hms.hospital_management_system.model.User;
+import com.hms.hospital_management_system.repository.RoleRepository;
 import com.hms.hospital_management_system.repository.UserRepository;
 import com.hms.hospital_management_system.service.UserService;
 import com.hms.hospital_management_system.service.handler.UserHandlerService;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserResponse registerUser(UserRequest request) {
@@ -44,6 +47,11 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userHandlerService.convertToUser(request);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         String otp = generateOtp();
@@ -77,19 +85,40 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.getOtp().equals(otp)) {
+        if (user.getOtp() == null) {
+            throw new RuntimeException("No OTP found for this user");
+        }
+
+        if (!user.getOtp().trim().equals(otp.trim())) {
             throw new RuntimeException("Invalid OTP");
         }
 
         user.setEnabled(true);
+        user.setOtp(null);
         userRepository.save(user);
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         final String token = jwtUtil.generateToken(userDetails);
-
         UserResponse response = userHandlerService.convertToUserResponse(user);
         response.setToken(token);
+
         return response;
+    }
+
+    @Override
+    public void resendOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isEnabled()) {
+            throw new RuntimeException("User is already enabled");
+        }
+
+        String otp = generateOtp();
+        user.setOtp(otp);
+        userRepository.save(user);
+
+        sendOtpEmail(user.getEmail(), otp);
     }
 
     @Override
@@ -105,7 +134,11 @@ public class UserServiceImpl implements UserService {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        user.setRole(request.getRole());
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setUpdatedAt(new java.util.Date());
 
         userRepository.save(user);

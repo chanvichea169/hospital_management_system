@@ -11,6 +11,7 @@
     "@mantine/modals": "8.3.0",
     "@mantine/notifications": "8.3.0",
     "@tabler/icons-react": "^3.35.0",
+    "axios": "^1.12.2",
     "dayjs": "^1.11.18",
     "lucide-react": "^0.544.0",
     "react": "^18.2.0",

@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 import {
   IconLayoutDashboard,
   IconStethoscope,
@@ -7,7 +8,7 @@ import {
   IconPill,
   IconSettings,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 const links = [
   {
@@ -48,15 +49,21 @@ const links = [
 ];
 
 const SideBar = () => {
+  const token = localStorage.getItem("token");
+
+  // If not logged in, redirect to login page
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
-    <div className="w-72 bg-dark-100 flex flex-col items-center p-6 min-h-screen">
+    <div className="w-72 bg-dark-50 flex flex-col items-center p-6 min-h-screen">
       <Link to="/" className="flex flex-col items-center cursor-pointer">
         <img
           src="logo.png"
           alt="Preah Ang Duong Hospital Logo"
           className="w-24 h-24 object-contain mb-2 rounded-full border-4 border-white shadow-[0_0_15px_white]"
         />
-
         <span className="mt-3 font-heading font-bold text-xl text-[#09aedb] text-center whitespace-nowrap">
           Preah Ang Duong Hospital
         </span>
@@ -67,13 +74,19 @@ const SideBar = () => {
         <ul className="flex flex-col gap-4">
           {links.map((link) => (
             <li key={link.name}>
-              <a
-                href={link.url}
-                className="flex items-center gap-3 px-4 py-2 font-semibold text-gray-300 hover:text-dark-50 hover:bg-light-50 rounded-lg transition"
+              <NavLink
+                to={link.url}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2 font-semibold rounded-lg transition ${
+                    isActive
+                      ? "bg-cyan-400 text-dark-50"
+                      : "text-gray-300 hover:text-dark-50 hover:bg-light-50"
+                  }`
+                }
               >
                 {link.icon}
                 <span>{link.name}</span>
-              </a>
+              </NavLink>
             </li>
           ))}
         </ul>

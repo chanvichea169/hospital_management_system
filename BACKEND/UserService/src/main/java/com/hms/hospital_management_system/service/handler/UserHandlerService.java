@@ -2,9 +2,11 @@ package com.hms.hospital_management_system.service.handler;
 
 import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
-import com.hms.hospital_management_system.enumeration.Roles;
+import com.hms.hospital_management_system.model.Role;
 import com.hms.hospital_management_system.model.User;
+import com.hms.hospital_management_system.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -12,6 +14,9 @@ import java.util.Date;
 @Service
 @Slf4j
 public class UserHandlerService {
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public void validateUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
@@ -39,7 +44,11 @@ public class UserHandlerService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleId()));
+            user.setRole(role);
+        }
         user.setPassword(request.getPassword());
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
@@ -47,11 +56,16 @@ public class UserHandlerService {
     }
 
     public UserResponse convertToUserResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setUsername(user.getUsername());
+        userResponse.setEmail(user.getEmail());
+        if (user.getRole() != null) {
+            userResponse.setRole(user.getRole().getName().name());
+        }
+        userResponse.setEnabled(user.isEnabled());
+        userResponse.setCreatedAt(user.getCreatedAt());
+        userResponse.setUpdatedAt(user.getUpdatedAt());
+        return userResponse;
     }
 }

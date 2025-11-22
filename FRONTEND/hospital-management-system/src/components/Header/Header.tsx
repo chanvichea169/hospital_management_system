@@ -7,12 +7,11 @@ import {
   IconLogin2,
 } from "@tabler/icons-react";
 import ProfileMenu from "./ProfileMenu";
-import { ActionIcon, TextInput, Button } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { ActionIcon, TextInput } from "@mantine/core";
 
 const Header = () => {
   return (
-    <div className="bg-white w-full h-20 flex justify-between items-center px-2 shadow-lg">
+    <div className="bg-white w-full h-20 flex justify-between items-center px-2 shadow-md">
       <div className="flex items-center gap-4">
         <ActionIcon
           variant="light"
@@ -52,7 +51,7 @@ const Header = () => {
           <IconBellRinging size={26} stroke={1.5} />
         </ActionIcon>
 
-        {/* Login button */}
+        {/* Login button
         <Button
           component={Link}
           to="/login"
@@ -63,7 +62,7 @@ const Header = () => {
           className="font-semibold shadow-md"
         >
           Login
-        </Button>
+        </Button> */}
 
         {/* Profile Menu */}
         <ProfileMenu />

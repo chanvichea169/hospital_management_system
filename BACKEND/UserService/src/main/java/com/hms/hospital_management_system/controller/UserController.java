@@ -2,6 +2,7 @@ package com.hms.hospital_management_system.controller;
 
 import com.hms.hospital_management_system.dto.UserRequest;
 import com.hms.hospital_management_system.dto.UserResponse;
+import com.hms.hospital_management_system.dto.VerifyOtpRequest;
 import com.hms.hospital_management_system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,9 +39,31 @@ public class UserController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
         try {
-            return ResponseEntity.ok(userService.verifyOtp(email, otp));
+            if (request.getEmail() == null || request.getOtp() == null ||
+                    request.getEmail().isBlank() || request.getOtp().isBlank()) {
+                return ResponseEntity.badRequest().body("Email and OTP are required");
+            }
+
+            UserResponse response = userService.verifyOtp(
+                    request.getEmail().trim(),
+                    request.getOtp().trim()
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            userService.resendOtp(email);
+            return ResponseEntity.ok("OTP resent successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

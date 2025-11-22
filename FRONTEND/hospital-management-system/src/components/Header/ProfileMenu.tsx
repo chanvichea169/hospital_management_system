@@ -1,16 +1,24 @@
 import { Menu, Text, Avatar, Divider } from "@mantine/core";
 import {
   IconSettings,
-  IconSearch,
-  IconPhoto,
   IconMessageCircle,
   IconTrash,
   IconArrowsLeftRight,
   IconLogout,
   IconUser,
 } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 const ProfileMenu = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear JWT token
+    localStorage.removeItem("token");
+    // Redirect to login page
+    navigate("/login", { replace: true });
+  };
+
   return (
     <Menu shadow="md" width={220} position="bottom-end">
       <Menu.Target>
@@ -21,7 +29,6 @@ const ProfileMenu = () => {
       </Menu.Target>
 
       <Menu.Dropdown>
-        {/* Profile Section */}
         <div className="flex items-center gap-3 p-3">
           <Avatar src="avatar.png" size={40} radius="xl" />
           <div>
@@ -33,7 +40,6 @@ const ProfileMenu = () => {
         </div>
         <Divider />
 
-        {/* Application Section */}
         <Menu.Label>Application</Menu.Label>
         <Menu.Item leftSection={<IconUser size={16} />}>Profile</Menu.Item>
         <Menu.Item leftSection={<IconSettings size={16} />}>Settings</Menu.Item>
@@ -43,22 +49,14 @@ const ProfileMenu = () => {
 
         <Menu.Divider />
 
-        {/* Danger zone */}
-        <Menu.Label>Danger zone</Menu.Label>
-        <Menu.Item leftSection={<IconArrowsLeftRight size={16} />}>
-          Transfer my data
-        </Menu.Item>
-        <Menu.Item color="red" leftSection={<IconTrash size={16} />}>
-          Delete my account
-        </Menu.Item>
-
         <Menu.Divider />
 
-        {/* Logout */}
+        {/* Proper Logout */}
         <Menu.Item
           color="red"
           leftSection={<IconLogout size={16} />}
-          onClick={() => console.log("Logging out...")}
+          onClick={handleLogout}
+          className="font-semibold"
         >
           Logout
         </Menu.Item>
